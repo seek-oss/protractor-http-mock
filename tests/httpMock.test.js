@@ -2,6 +2,7 @@ describe('http mock', function(){
 	var http = null,
 		module;
 
+
 	function configureMock(){
 		var mock = window.httpMock([
 			{
@@ -620,6 +621,47 @@ describe('http mock', function(){
 
 	describe('external url', function(){
 		it('should match against external URLs', function(done){
+			http({
+				method: 'GET',
+				url: 'https://test-api.com/user'
+			}).then(function(response){
+				expect(response.data).toBe('pass');
+				done();
+			});
+		});
+	});
+
+	describe('at runtime', function() {
+
+		var dynamicMocks = [{
+			request: {
+				method: 'GET',
+					path: '/user'
+			},
+			response: {
+				data: 'override'
+			}
+		}];
+
+		beforeEach(function() {
+			module.addMocks(dynamicMocks);
+		});
+		afterEach(function() {
+			module.removeMocks(dynamicMocks);
+		});
+
+		it('can add a mock', function(){
+			http({
+				method: 'GET',
+				url: 'https://test-api.com/user'
+			}).then(function(response){
+				expect(response.data).toBe('override');
+				done();
+			});
+		});
+
+		it('can remove a mock', function(){
+			module.removeMocks(dynamicMocks);
 			http({
 				method: 'GET',
 				url: 'https://test-api.com/user'
